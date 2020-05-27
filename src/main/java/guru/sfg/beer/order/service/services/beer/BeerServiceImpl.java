@@ -28,22 +28,22 @@ public class BeerServiceImpl implements BeerService {
         this.restTemplate = restTemplateBuilder.build();
     }
 
-    public void setBeerServiceHost(String host){
+    public void setBeerServiceHost(String host) {
         this.beerServiceHost = host;
     }
 
-    public Optional<BeerDto> getBeerById(UUID uuid){
+    public Optional<BeerDto> getBeerById(UUID uuid) {
         String uri = beerServiceHost + BEER_ID_SERVICE_PATH + uuid.toString();
         return Optional.of(restTemplate.getForObject(uri, BeerDto.class));
     }
 
-    public Optional<BeerDto> getBeerByUpc(String upc){
+    public Optional<BeerDto> getBeerByUpc(String upc) {
         String uri = beerServiceHost + BEER_UPC_SERVICE_PATH + upc;
-        log.debug("Calling Beer Service: "+ uri);
-        return Optional.of(restTemplate.getForObject(uri,BeerDto.class));
+        log.debug("Calling Beer Service: " + uri);
+        return Optional.of(restTemplate.getForObject(uri, BeerDto.class));
     }
 
-    public BeerDto getBeerDto(UUID beerId){
+    public BeerDto getBeerDto(UUID beerId) {
 
         log.debug("Calling Beer Service");
 
@@ -51,7 +51,8 @@ public class BeerServiceImpl implements BeerService {
         ResponseEntity<BeerDto> responseEntity = restTemplate.exchange(uri,
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<BeerDto>(){},
+                new ParameterizedTypeReference<BeerDto>() {
+                },
                 (Object) beerId);
 
         return Objects.requireNonNull(responseEntity.getBody());

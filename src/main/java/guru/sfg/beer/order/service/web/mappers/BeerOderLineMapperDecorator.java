@@ -10,19 +10,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Optional;
 
-public abstract class BeerOderLineMapperDecorator implements BeerOrderLineMapper{
+public abstract class BeerOderLineMapperDecorator implements BeerOrderLineMapper {
 
     private BeerService beerService;
     private BeerOrderLineMapper mapper;
 
     @Autowired
-    public void setBeerService(BeerService beerService){
+    public void setBeerService(BeerService beerService) {
         this.beerService = beerService;
     }
 
     @Autowired
     @Qualifier("delegate")
-    public void setBeerOrderLineMapper(BeerOrderLineMapper beerOrderLineMapper){
+    public void setBeerOrderLineMapper(BeerOrderLineMapper beerOrderLineMapper) {
         this.mapper = beerOrderLineMapper;
     }
 
