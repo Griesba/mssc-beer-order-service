@@ -91,9 +91,22 @@ class BeerOrderManagerImplIT {
             assertEquals(BeerOrderStatusEnum.ALLOCATION_PENDING, foundOrder.getOrderStatus());
         });
 
-        assertNotNull(savedBeerOrder);
+        await().untilAsserted(() -> {
+            BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).get();
+            BeerOrderLine beerOrderLine = foundOrder.getBeerOrderLines().iterator().next();
 
-        assertEquals(BeerOrderStatusEnum.ALLOCATED, savedBeerOrder.getOrderStatus());
+            assertEquals(beerOrderLine.getOrderQuantity(), beerOrderLine.getQuantityAllocated());
+        });
+
+        BeerOrder savedBeerOrder2 = beerOrderManager.newBeerOrder(beerOrder);
+
+        assertNotNull(savedBeerOrder2);
+
+        assertEquals(BeerOrderStatusEnum.ALLOCATED, savedBeerOrder2.getOrderStatus());
+
+        savedBeerOrder2.getBeerOrderLines().forEach(beerOrderLine -> {
+            assertEquals(beerOrderLine.getOrderQuantity(), beerOrderLine.getQuantityAllocated());
+        });
     }
 
     private BeerOrder createBeerOrder() {
