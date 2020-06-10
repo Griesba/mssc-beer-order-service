@@ -71,21 +71,27 @@ class BeerOrderManagerImplIT {
 
     @BeforeEach
     void setUp() {
-        testCustomer = customerRepository.save(Customer.builder().customerName("Test customer").build());
+
+        testCustomer = customerRepository.save(
+                Customer.builder()
+                        .customerName("Test customer")
+                        .build());
     }
 
     @Test
     public void testNewToAllocated() throws JsonProcessingException {
         BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
-        //BeerPagedList list = new BeerPagedList(Arrays.asList(beerDto));
 
-        wireMockServer.stubFor(WireMock.get(BeerServiceImpl.BEER_UPC_SERVICE_PATH + "12345").willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
+        wireMockServer.stubFor(
+                WireMock.get(BeerServiceImpl.BEER_UPC_SERVICE_PATH + "12345")
+                        .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
+
         BeerOrder beerOrder = createBeerOrder();
 
         BeerOrder savedBeerOrder = beerOrderManager.newBeerOrder(beerOrder);
 
         await().untilAsserted(() -> {
-            BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).get();
+            BeerOrder foundOrder = beerOrderRepository.findById(savedBeerOrder.getId()).get();
 
             //todo - ALLOCATED_STATUS
             assertEquals(BeerOrderStatusEnum.ALLOCATION_PENDING, foundOrder.getOrderStatus());
