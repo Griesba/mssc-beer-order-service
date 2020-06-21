@@ -72,7 +72,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
         AtomicInteger loopCount = new AtomicInteger(0);
 
         while (!found.get()) {
-            if (loopCount.incrementAndGet() > 500) {
+            if (loopCount.incrementAndGet() > 10) {
                 found.set(true);
                 log.debug("Loop Retries exceeded");
             }
