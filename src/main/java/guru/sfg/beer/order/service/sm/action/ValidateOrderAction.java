@@ -36,9 +36,11 @@ public class ValidateOrderAction implements Action<BeerOrderStatusEnum, BeerOrde
         Optional<BeerOrder> beerOrderOptional = beerOrderRepository.findById(UUID.fromString(beerOrderId));
 
         beerOrderOptional.ifPresentOrElse(beerOrder -> {
-            jmsTemplate.convertAndSend(JmsConfig.VALIDATE_ORDER_QUEUE, ValidateBeerOrderRequest.builder()
-                    .beerOrderDto(beerOrderMapper.beerOrderToDto(beerOrder))
-                    .build()
+            jmsTemplate.convertAndSend(
+                    JmsConfig.VALIDATE_ORDER_QUEUE,
+                    ValidateBeerOrderRequest.builder()
+                            .beerOrderDto(beerOrderMapper.beerOrderToDto(beerOrder))
+                            .build()
             );
 
             log.debug("Send validation request to queue for order Id " + beerOrderId);
