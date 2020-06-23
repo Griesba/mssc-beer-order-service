@@ -5,11 +5,11 @@ import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.domain.BeerOrderEventEnum;
 import guru.sfg.beer.order.service.domain.BeerOrderStatusEnum;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
-import guru.sfg.beer.order.service.services.BeerOrderManager;
 import guru.sfg.beer.order.service.services.BeerOrderManagerImpl;
 import guru.sfg.beer.order.service.web.mappers.BeerOrderMapper;
+import guru.sfg.brewery.model.events.AllocationFailureEvent;
 import guru.sfg.brewery.model.events.ValidateBeerOrderRequest;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.statemachine.StateContext;
@@ -21,30 +21,23 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Component
-public class ValidateOrderAction implements Action<BeerOrderStatusEnum, BeerOrderEventEnum> {
+public class AllocationFailureAction implements Action<BeerOrderStatusEnum, BeerOrderEventEnum> {
 
-    private final BeerOrderRepository beerOrderRepository;
-    private final BeerOrderMapper beerOrderMapper;
     private final JmsTemplate jmsTemplate;
 
     @Override
-    @Transactional
     public void execute(StateContext<BeerOrderStatusEnum, BeerOrderEventEnum> stateContext) {
         String beerOrderId = (String) stateContext.getMessage().getHeaders().get(BeerOrderManagerImpl.ORDER_ID_HEADER);
-        Optional<BeerOrder> beerOrderOptional = beerOrderRepository.findById(UUID.fromString(beerOrderId));
 
-        beerOrderOptional.ifPresentOrElse(beerOrder -> {
             jmsTemplate.convertAndSend(
-                    JmsConfig.VALIDATE_ORDER_QUEUE,
-                    ValidateBeerOrderRequest.builder()
-                            .beerOrderDto(beerOrderMapper.beerOrderToDto(beerOrder))
+                    JmsConfig.ALLOCATE_FAILURE_QUEUE,
+                    AllocationFailureEvent.builder()
+                            .orderId(UUID.fromString(beerOrderId))
                             .build()
             );
 
-            log.debug("Send validation request to queue for order Id " + beerOrderId);
-        }, () -> log.error("Order nor found. Id " + beerOrderId));
-
+            log.debug("Send allocation failure message to queue for order Id " + beerOrderId);
     }
 }

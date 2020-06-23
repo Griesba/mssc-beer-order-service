@@ -19,7 +19,7 @@ public class BeerOrderValidationListener {
 
     @JmsListener(destination = JmsConfig.VALIDATE_ORDER_QUEUE)
     public void listener(Message message){
-        boolean isValid = false;
+        boolean isValid = true;
 
         ValidateBeerOrderRequest request = (ValidateBeerOrderRequest) message.getPayload();
 
