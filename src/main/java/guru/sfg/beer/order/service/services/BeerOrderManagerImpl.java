@@ -1,16 +1,13 @@
 package guru.sfg.beer.order.service.services;
 
-import guru.sfg.beer.order.service.config.JmsConfig;
 import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.domain.BeerOrderEventEnum;
 import guru.sfg.beer.order.service.domain.BeerOrderStatusEnum;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
 import guru.sfg.beer.order.service.sm.OrderStateChangeInterceptor;
 import guru.sfg.brewery.model.BeerOrderDto;
-import guru.sfg.brewery.model.events.ValidateOrderResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
@@ -18,7 +15,7 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
+import javax.persistence.EntityManager;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,6 +31,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
     private final StateMachineFactory<BeerOrderStatusEnum, BeerOrderEventEnum> stateMachineFactory;
     private final BeerOrderRepository beerOrderRepository;
     private final OrderStateChangeInterceptor orderStateChangeInterceptor;
+    private final EntityManager entityManager;
 
     @Override
     public BeerOrder newBeerOrder(BeerOrder beerOrder) {
@@ -47,6 +45,11 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
 
     @Override
     public void processValidationResult(UUID beerOrderId, Boolean isValid) {
+
+        log.debug("Process Validation Result for beerOrderId: " + beerOrderId + " Valid? " + isValid);
+
+        entityManager.flush();
+
         Optional<BeerOrder> beerOrderOptional = beerOrderRepository.findById(beerOrderId);
 
         beerOrderOptional.ifPresentOrElse(beerOrder -> {
@@ -54,7 +57,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
                 sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.VALIDATION_PASSED);
 
                 //wait for status change
-                awaitForStatus(beerOrderId, BeerOrderStatusEnum.VALIDATED);
+                //awaitForStatus(beerOrderId, BeerOrderStatusEnum.VALIDATED);
 
                 //  interceptor saved the previous one and for hibernate the version of the two object are different
                 BeerOrder validatedBeerOrder = beerOrderRepository.findById(beerOrderId).get();
@@ -135,6 +138,13 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
         beerOrderOptional.ifPresentOrElse(beerOrder -> {
             sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.BEER_ORDER_PICKED_UP);
         }, () -> log.error("Order nor found. Id " + id));
+    }
+
+    @Override
+    public void cancelOrder(UUID uuid) {
+        beerOrderRepository.findById(uuid).ifPresentOrElse(
+                beerOrder -> sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.CANCEL_ORDER),
+                () -> log.error("Order not found for id " + uuid));
     }
 
     private void updateAllocationQty(BeerOrderDto beerOrderDto) {
