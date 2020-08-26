@@ -85,7 +85,7 @@ class BeerOrderManagerImplIT {
                         .customerName("Test customer")
                         .build());
     }
-
+/*
     @Test
     public void testNewToAllocated() throws JsonProcessingException {
         BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
@@ -121,8 +121,9 @@ class BeerOrderManagerImplIT {
         savedBeerOrder2.getBeerOrderLines().forEach(beerOrderLine -> {
             assertEquals(beerOrderLine.getOrderQuantity(), beerOrderLine.getQuantityAllocated());
         });
-    }
+    }*/
 
+/*
     @Test
     public void testNewToPickedUp() throws JsonProcessingException {
         BeerDto beerDto = BeerDto.builder().id(beerId).upc("1234").build();
@@ -153,7 +154,9 @@ class BeerOrderManagerImplIT {
         assertEquals(BeerOrderStatusEnum.PICKED_UP, pickedUpOrder.getOrderStatus());
 
     }
+*/
 
+/*
     @Test
     void testFailedValidation() throws JsonProcessingException {
         BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
@@ -172,8 +175,10 @@ class BeerOrderManagerImplIT {
             assertEquals(BeerOrderStatusEnum.VALIDATION_EXCEPTION, foundOrder.getOrderStatus());
         });
     }
+*/
 
 
+/*
     @Test
     void testAllocationFailure() throws JsonProcessingException {
         BeerDto beerDto = BeerDto.builder().id(beerId).upc("1234").build();
@@ -197,7 +202,9 @@ class BeerOrderManagerImplIT {
         assertNotNull(allocationFailureEvent);
         assertThat(allocationFailureEvent.getOrderId()).isEqualTo(savedBeerOrder.getId());
     }
+*/
 
+/*
     @Test
     void testPartialAllocation() throws JsonProcessingException {
 
@@ -217,6 +224,7 @@ class BeerOrderManagerImplIT {
             assertEquals(BeerOrderStatusEnum.PENDING_INVENTORY, foundOrder.getOrderStatus());
         });
     }
+*/
 
     @Test
     void testValidationPendingToCancel() throws JsonProcessingException {
@@ -245,6 +253,7 @@ class BeerOrderManagerImplIT {
             assertEquals(BeerOrderStatusEnum.CANCELLED, foundOrder.getOrderStatus());
         });
     }
+/*
 
     @Test
     void testAllocationPendingToCancel() throws JsonProcessingException {
@@ -273,8 +282,9 @@ class BeerOrderManagerImplIT {
             assertEquals(BeerOrderStatusEnum.CANCELLED, foundOrder.getOrderStatus());
         });
     }
+*/
 
-    @Test
+   /* @Test
     void testAllocatedToCancel() throws JsonProcessingException {
 
         BeerDto beerDto = BeerDto.builder().id(beerId).upc("1234").build();
@@ -305,7 +315,7 @@ class BeerOrderManagerImplIT {
         assertNotNull(deallocateOrderRequest);
 
         assertThat(deallocateOrderRequest.getBeerOrderDto().getId()).isEqualTo(savedBeerOrder.getId());
-    }
+    }*/
 
     private BeerOrder createBeerOrder() {
         BeerOrder beerOrder = BeerOrder.builder()
